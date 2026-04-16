@@ -26,7 +26,8 @@ const getCategoryTopData = async () => {
 const isFinish = ref(false)
 // 页面加载
 onLoad(async () => {
-  await Promise.all([getBannerData(), getCategoryTopData()])
+  // await Promise.all([getBannerData(), getCategoryTopData()])
+  await Promise.all([getBannerData()])
   isFinish.value = true
 })
 

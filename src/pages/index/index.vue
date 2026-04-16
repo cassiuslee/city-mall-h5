@@ -14,6 +14,7 @@ const bannerList = ref<BannerItem[]>([])
 const getHomeBannerData = async () => {
   const res = await getHomeBannerAPI()
   bannerList.value = res.result
+  console.log(res)
 }
 
 // 获取前台分类数据
@@ -36,7 +37,8 @@ const isLoading = ref(false)
 // 页面加载
 onLoad(async () => {
   isLoading.value = true
-  await Promise.all([getHomeBannerData(), getHomeCategoryData(), getHomeHotData()])
+  // await Promise.all([getHomeBannerData(), getHomeCategoryData(), getHomeHotData()])
+  await Promise.all([getHomeBannerData()])
   isLoading.value = false
 })
 

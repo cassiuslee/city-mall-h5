@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { useGuessList } from '@/composables'
+import { ref } from 'vue'
 import { useMemberStore } from '@/stores'
+import type { MemberUserInfo } from '@/types/customer'
+import { getMemberUserInfoAPI } from '@/services/customer.ts'
+import { onShow } from '@dcloudio/uni-app'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 订单选项
@@ -13,11 +17,38 @@ const orderTypes = [
 // 获取会员信息
 const memberStore = useMemberStore()
 
-const { guessRef, onScrolltolower } = useGuessList()
+/**
+ * 当前完整用户信息
+ */
+const userInfo = ref<MemberUserInfo | null>(null)
+
+/**
+ * 页面展示时刷新用户信息
+ */
+const loadUserInfo = async () => {
+  const userId = memberStore.profile?.userId
+
+  if (!userId) {
+    userInfo.value = null
+    return
+  }
+
+  try {
+    const res = await getMemberUserInfoAPI(userId)
+    userInfo.value = res.result
+    console.log(userInfo.value)
+  } catch (error) {
+    console.error('获取用户信息失败：', error)
+  }
+}
+
+onShow(() => {
+  loadUserInfo()
+})
 </script>
 
 <template>
-  <scroll-view enable-back-to-top @scrolltolower="onScrolltolower" class="viewport" scroll-y>
+  <scroll-view enable-back-to-top class="viewport" scroll-y>
     <!-- 个人资料 -->
     <view class="profile" :style="{ paddingTop: safeAreaInsets!.top + 'px' }">
       <!-- 情况1：已登录 -->
@@ -83,9 +114,9 @@ const { guessRef, onScrolltolower } = useGuessList()
       </view>
     </view>
     <!-- 猜你喜欢 -->
-    <view class="guess">
-      <XtxGuess ref="guessRef" />
-    </view>
+    <!--    <view class="guess">-->
+    <!--      <XtxGuess ref="guessRef" />-->
+    <!--    </view>-->
   </scroll-view>
 </template>
 
