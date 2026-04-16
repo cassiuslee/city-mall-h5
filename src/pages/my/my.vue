@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { useGuessList } from '@/composables'
 import { ref } from 'vue'
-import { useMemberStore } from '@/stores'
-import type { MemberUserInfo } from '@/types/customer'
-import { getMemberUserInfoAPI } from '@/services/customer.ts'
 import { onShow } from '@dcloudio/uni-app'
+import { useMemberStore } from '@/stores'
+import type { MemberMarketInfo, MemberUserInfo } from '@/types/customer'
+import { getMemberUserInfoAPI } from '@/services/customer'
+import MarketSwitcher from '@/components/market-switcher/market-switcher.vue'
+
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
+
 // 订单选项
 const orderTypes = [
   { type: '1', text: '待付款', icon: 'icon-currency' },
@@ -14,11 +16,13 @@ const orderTypes = [
   { type: '3', text: '待收货', icon: 'icon-check' },
   { type: '4', text: '待评价', icon: 'icon-comment' },
 ]
+
 // 获取会员信息
 const memberStore = useMemberStore()
 
 /**
  * 当前完整用户信息
+ * 页面本地也保留一份，便于模板直读
  */
 const userInfo = ref<MemberUserInfo | null>(null)
 
@@ -30,16 +34,36 @@ const loadUserInfo = async () => {
 
   if (!userId) {
     userInfo.value = null
+    memberStore.setUserInfo(null)
+    memberStore.setCurrentMarket(null)
     return
   }
 
   try {
     const res = await getMemberUserInfoAPI(userId)
-    userInfo.value = res.result
-    console.log(userInfo.value)
+    const data = res.result
+
+    userInfo.value = data
+
+    // 存入全局 store
+    memberStore.setUserInfo(data)
+
+    // 初始化当前主体
+    memberStore.initCurrentMarket(data?.markets || [])
   } catch (error) {
     console.error('获取用户信息失败：', error)
   }
+}
+
+/**
+ * 选择经营主体
+ */
+const handleMarketChange = (market: MemberMarketInfo) => {
+  memberStore.setCurrentMarket(market)
+  uni.showToast({
+    icon: 'success',
+    title: '已切换经营主体',
+  })
 }
 
 onShow(() => {
@@ -87,6 +111,14 @@ onShow(() => {
         设置
       </navigator>
     </view>
+
+    <!-- 经营主体切换 -->
+    <MarketSwitcher
+      v-if="memberStore.profile"
+      :current-market="memberStore.currentMarket"
+      :market-list="userInfo?.markets || []"
+      @change="handleMarketChange"
+    />
     <!-- 我的订单 -->
     <view class="orders">
       <view class="title">
@@ -208,7 +240,7 @@ page {
   position: relative;
   z-index: 99;
   padding: 30rpx;
-  margin: 50rpx 20rpx 0;
+  margin: 24rpx 20rpx 0;
   background-color: #fff;
   border-radius: 10rpx;
   box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
@@ -225,36 +257,7 @@ page {
       float: right;
     }
   }
-
-  .section {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 40rpx 20rpx 10rpx;
-    .navigator,
-    .contact {
-      text-align: center;
-      font-size: 24rpx;
-      color: #333;
-      &::before {
-        display: block;
-        font-size: 60rpx;
-        color: #ff9545;
-      }
-      &::after {
-        border: none;
-      }
-    }
-    .contact {
-      padding: 0;
-      margin: 0;
-      border: 0;
-      background-color: transparent;
-      line-height: inherit;
-    }
-  }
 }
-
 /* 猜你喜欢 */
 .guess {
   background-color: #f7f7f8;

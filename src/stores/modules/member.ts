@@ -1,42 +1,99 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { MallLoginProfile } from '@/types/auth'
+import type { MemberMarketInfo, MemberUserInfo } from '@/types/customer'
 
-// 定义 Store
+// 定义会员 Store
 export const useMemberStore = defineStore(
   'member',
   () => {
     /**
-     * 当前登录态
-     * 这里只保存最小信息：token、userId、昵称等
-     * 完整用户资料通过 /customer/member-user-info 单独获取
+     * 最小登录态
+     * 这里只保存 token、userId、头像昵称等基础信息
      */
     const profile = ref<MallLoginProfile | undefined>()
 
     /**
-     * 设置登录态
-     * @param val 登录成功后的返回信息
+     * 当前完整用户信息
+     * 来源：/customer/member-user-info
+     */
+    const userInfo = ref<MemberUserInfo | null>(null)
+
+    /**
+     * 当前选中的经营主体
+     */
+    const currentMarket = ref<MemberMarketInfo | null>(null)
+
+    /**
+     * 保存登录态
      */
     const setProfile = (val: MallLoginProfile) => {
       profile.value = val
     }
 
-    // 清理会员信息，退出时使用
-    const clearProfile = () => {
-      profile.value = undefined
+    /**
+     * 保存完整用户信息
+     */
+    const setUserInfo = (val: MemberUserInfo | null) => {
+      userInfo.value = val
     }
 
-    // 记得 return
+    /**
+     * 设置当前经营主体
+     */
+    const setCurrentMarket = (val: MemberMarketInfo | null) => {
+      currentMarket.value = val
+    }
+
+    /**
+     * 根据用户信息初始化当前主体
+     * 规则：
+     * 1. 如果 currentMarket 还存在，并且还能在新 markets 中找到，就继续用
+     * 2. 否则默认取第一个主体
+     * 3. 如果没有主体，则置空
+     */
+    const initCurrentMarket = (markets: MemberMarketInfo[] = []) => {
+      if (!markets.length) {
+        currentMarket.value = null
+        return
+      }
+
+      if (currentMarket.value) {
+        const matched = markets.find(
+          (item) =>
+            item.relationId === currentMarket.value?.relationId ||
+            item.marketFid === currentMarket.value?.marketFid,
+        )
+        if (matched) {
+          currentMarket.value = matched
+          return
+        }
+      }
+
+      currentMarket.value = markets[0]
+    }
+
+    /**
+     * 退出登录 / 清空所有会员相关数据
+     */
+    const clearProfile = () => {
+      profile.value = undefined
+      userInfo.value = null
+      currentMarket.value = null
+    }
+
     return {
       profile,
+      userInfo,
+      currentMarket,
       setProfile,
+      setUserInfo,
+      setCurrentMarket,
+      initCurrentMarket,
       clearProfile,
     }
   },
   {
-    // 网页端配置
-    // persist: true,
-    // 小程序端配置
     persist: {
       storage: {
         getItem(key) {
