@@ -3,13 +3,7 @@ import { computed, ref } from 'vue'
 import type { MemberMarketInfo } from '@/types/customer'
 
 interface Props {
-  /**
-   * 当前选中的主体
-   */
   currentMarket: MemberMarketInfo | null
-  /**
-   * 可选主体列表
-   */
   marketList: MemberMarketInfo[]
 }
 
@@ -19,42 +13,24 @@ const emit = defineEmits<{
   (e: 'change', value: MemberMarketInfo): void
 }>()
 
-/**
- * uni-popup 实例
- */
-const popupRef = ref<UniHelper.UniPopupInstance | null>(null)
+const popupRef = ref<any>(null)
 
-/**
- * 是否有主体可切换
- */
 const hasMarket = computed(() => props.marketList && props.marketList.length > 0)
 
-/**
- * 打开弹层
- */
 const openPopup = () => {
   if (!hasMarket.value) return
   popupRef.value?.open()
 }
 
-/**
- * 关闭弹层
- */
 const closePopup = () => {
   popupRef.value?.close()
 }
 
-/**
- * 点击选择主体
- */
 const handleSelect = (item: MemberMarketInfo) => {
   emit('change', item)
   closePopup()
 }
 
-/**
- * 判断是否为当前选中主体
- */
 const isActive = (item: MemberMarketInfo) => {
   if (!props.currentMarket) return false
   return (
@@ -66,7 +42,6 @@ const isActive = (item: MemberMarketInfo) => {
 
 <template>
   <view class="market-switcher">
-    <!-- 当前主体卡片 -->
     <view class="market-card" :class="{ disabled: !hasMarket }" @tap="openPopup">
       <view class="market-main">
         <view class="market-title-row">
@@ -98,7 +73,6 @@ const isActive = (item: MemberMarketInfo) => {
       </view>
     </view>
 
-    <!-- 底部弹层 -->
     <uni-popup ref="popupRef" type="bottom" background-color="#fff">
       <view class="popup-wrapper">
         <view class="popup-header">
@@ -219,7 +193,6 @@ const isActive = (item: MemberMarketInfo) => {
   }
 }
 
-/* 弹层 */
 .popup-wrapper {
   background: #ffffff;
   border-radius: 28rpx 28rpx 0 0;

@@ -73,43 +73,56 @@ onShow(() => {
 
 <template>
   <scroll-view enable-back-to-top class="viewport" scroll-y>
-    <!-- 个人资料 -->
+    <!-- 顶部资料区 -->
     <view class="profile" :style="{ paddingTop: safeAreaInsets!.top + 'px' }">
-      <!-- 情况1：已登录 -->
+      <!-- 已登录 -->
       <view class="overview" v-if="memberStore.profile">
-        <navigator url="/pagesMember/profile/profile" hover-class="none">
-          <image class="avatar" :src="memberStore.profile.avatar" mode="aspectFill"></image>
+        <navigator class="avatar-wrap" url="/pagesMember/profile/profile" hover-class="none">
+          <image
+            class="avatar"
+            :src="
+              memberStore.profile.avatar ||
+              'https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/avatar.jpg'
+            "
+            mode="aspectFill"
+          />
         </navigator>
+
         <view class="meta">
           <view class="nickname">
-            {{ memberStore.profile.nickname || memberStore.profile.account }}
+            {{ memberStore.profile.nickname || memberStore.profile.userId || '未命名用户' }}
           </view>
+          <view class="account-line">
+            {{ memberStore.profile.mobile || memberStore.profile.userId || '-' }}
+          </view>
+
           <navigator class="extra" url="/pagesMember/profile/profile" hover-class="none">
             <text class="update">更新头像昵称</text>
           </navigator>
         </view>
-      </view>
-      <!-- 情况2：未登录 -->
-      <view class="overview" v-else>
-        <navigator url="/pages/login/login" hover-class="none">
-          <image
-            class="avatar gray"
-            mode="aspectFill"
-            src="https://yjy-xiaotuxian-dev.oss-cn-beijing.aliyuncs.com/picture/2021-04-06/db628d42-88a7-46e7-abb8-659448c33081.png"
-          ></image>
+
+        <navigator class="settings" url="/pagesMember/settings/settings" hover-class="none">
+          设置
         </navigator>
+      </view>
+
+      <!-- 未登录 -->
+      <view class="overview" v-else>
+        <navigator class="avatar-wrap" url="/pages/login/login" hover-class="none">
+          <image
+            class="avatar"
+            src="https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/avatar.jpg"
+            mode="aspectFill"
+          />
+        </navigator>
+
         <view class="meta">
-          <navigator url="/pages/login/login" hover-class="none" class="nickname">
-            未登录
+          <navigator class="login-entry" hover-class="none" url="/pages/login/login">
+            点击登录账号
           </navigator>
-          <view class="extra">
-            <text class="tips">点击登录账号</text>
-          </view>
+          <view class="account-line">登录后可切换经营主体</view>
         </view>
       </view>
-      <navigator class="settings" url="/pagesMember/settings/settings" hover-class="none">
-        设置
-      </navigator>
     </view>
 
     <!-- 经营主体切换 -->
@@ -119,16 +132,18 @@ onShow(() => {
       :market-list="userInfo?.markets || []"
       @change="handleMarketChange"
     />
-    <!-- 我的订单 -->
+
+    <!-- 订单区 -->
     <view class="orders">
       <view class="title">
-        我的订单
+        <text>我的订单</text>
         <navigator class="navigator" url="/pagesOrder/list/list?type=0" hover-class="none">
-          查看全部订单<text class="icon-right"></text>
+          查看全部订单
+          <text class="icon-right"></text>
         </navigator>
       </view>
+
       <view class="section">
-        <!-- 订单 -->
         <navigator
           v-for="item in orderTypes"
           :key="item.type"
@@ -139,16 +154,12 @@ onShow(() => {
         >
           {{ item.text }}
         </navigator>
-        <!-- 客服 -->
+
         <!-- #ifdef MP-WEIXIN -->
         <button class="contact icon-handset" open-type="contact">售后</button>
         <!-- #endif -->
       </view>
     </view>
-    <!-- 猜你喜欢 -->
-    <!--    <view class="guess">-->
-    <!--      <XtxGuess ref="guessRef" />-->
-    <!--    </view>-->
   </scroll-view>
 </template>
 
@@ -160,9 +171,9 @@ onShow(() => {
 
 .profile {
   position: relative;
-  padding-bottom: 36rpx;
+  padding-bottom: 40rpx;
   background: linear-gradient(135deg, #27ba9b 0%, #4fd1b2 100%);
-  border-radius: 0 0 32rpx 32rpx;
+  border-radius: 0 0 36rpx 36rpx;
   overflow: hidden;
 
   .overview {
@@ -170,13 +181,17 @@ onShow(() => {
     align-items: center;
     padding: 32rpx 24rpx 28rpx;
 
-    .avatar {
-      width: 132rpx;
-      height: 132rpx;
-      border-radius: 50%;
-      border: 4rpx solid rgba(255, 255, 255, 0.92);
-      background: #ffffff;
-      box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.08);
+    .avatar-wrap {
+      flex-shrink: 0;
+
+      .avatar {
+        width: 132rpx;
+        height: 132rpx;
+        border-radius: 50%;
+        border: 4rpx solid rgba(255, 255, 255, 0.92);
+        background: #ffffff;
+        box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.08);
+      }
     }
 
     .meta {
@@ -184,7 +199,8 @@ onShow(() => {
       min-width: 0;
       margin-left: 24rpx;
 
-      .nickname {
+      .nickname,
+      .login-entry {
         font-size: 36rpx;
         font-weight: 700;
         line-height: 1.3;
@@ -194,10 +210,20 @@ onShow(() => {
         white-space: nowrap;
       }
 
+      .account-line {
+        margin-top: 10rpx;
+        font-size: 24rpx;
+        line-height: 1.4;
+        color: rgba(255, 255, 255, 0.88);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       .extra {
         display: inline-flex;
         align-items: center;
-        margin-top: 12rpx;
+        margin-top: 14rpx;
         padding: 8rpx 18rpx;
         border-radius: 999rpx;
         background: rgba(255, 255, 255, 0.16);
@@ -211,6 +237,7 @@ onShow(() => {
 
     .settings {
       flex-shrink: 0;
+      margin-left: 20rpx;
       padding: 10rpx 18rpx;
       border-radius: 999rpx;
       font-size: 24rpx;
@@ -220,7 +247,8 @@ onShow(() => {
   }
 }
 
-.orders {
+.orders,
+.market-info {
   margin: 24rpx 20rpx 0;
   padding: 28rpx 24rpx;
   background: #ffffff;
@@ -241,7 +269,9 @@ onShow(() => {
       color: #94a3b8;
     }
   }
+}
 
+.orders {
   .section {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -270,6 +300,43 @@ onShow(() => {
     .contact {
       border: none;
       padding: 0;
+    }
+  }
+}
+
+.market-info {
+  margin-bottom: 24rpx;
+
+  .info-list {
+    .info-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18rpx 0;
+      border-bottom: 1rpx solid #f1f5f9;
+
+      &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .label {
+        flex-shrink: 0;
+        margin-right: 20rpx;
+        font-size: 24rpx;
+        color: #94a3b8;
+      }
+
+      .value {
+        flex: 1;
+        min-width: 0;
+        text-align: right;
+        font-size: 26rpx;
+        color: #334155;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
 }
