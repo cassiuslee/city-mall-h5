@@ -152,115 +152,125 @@ onShow(() => {
   </scroll-view>
 </template>
 
-<style lang="scss">
-page {
-  height: 100%;
-  overflow: hidden;
-  background-color: #f7f7f8;
-}
-
+<style scoped lang="scss">
 .viewport {
-  height: 100%;
-  background-repeat: no-repeat;
-  background-image: url(https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/center_bg.png);
-  background-size: 100% auto;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f6f8fb 0%, #f2f4f7 100%);
 }
 
-/* 用户信息 */
 .profile {
-  margin-top: 30rpx;
   position: relative;
+  padding-bottom: 36rpx;
+  background: linear-gradient(135deg, #27ba9b 0%, #4fd1b2 100%);
+  border-radius: 0 0 32rpx 32rpx;
+  overflow: hidden;
 
   .overview {
     display: flex;
-    height: 120rpx;
-    padding: 0 36rpx;
-    color: #fff;
-  }
+    align-items: center;
+    padding: 32rpx 24rpx 28rpx;
 
-  .avatar {
-    width: 120rpx;
-    height: 120rpx;
-    border-radius: 50%;
-    background-color: #eee;
-  }
+    .avatar {
+      width: 132rpx;
+      height: 132rpx;
+      border-radius: 50%;
+      border: 4rpx solid rgba(255, 255, 255, 0.92);
+      background: #ffffff;
+      box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.08);
+    }
 
-  .gray {
-    filter: grayscale(100%);
-  }
+    .meta {
+      flex: 1;
+      min-width: 0;
+      margin-left: 24rpx;
 
-  .meta {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    line-height: 30rpx;
-    padding: 16rpx 0;
-    margin-left: 20rpx;
-  }
+      .nickname {
+        font-size: 36rpx;
+        font-weight: 700;
+        line-height: 1.3;
+        color: #ffffff;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
-  .nickname {
-    max-width: 180rpx;
-    margin-bottom: 16rpx;
-    font-size: 30rpx;
+      .extra {
+        display: inline-flex;
+        align-items: center;
+        margin-top: 12rpx;
+        padding: 8rpx 18rpx;
+        border-radius: 999rpx;
+        background: rgba(255, 255, 255, 0.16);
 
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+        .update {
+          font-size: 22rpx;
+          color: rgba(255, 255, 255, 0.92);
+        }
+      }
+    }
 
-  .extra {
-    display: flex;
-    font-size: 20rpx;
-  }
-
-  .tips {
-    font-size: 22rpx;
-  }
-
-  .update {
-    padding: 3rpx 10rpx 1rpx;
-    color: rgba(255, 255, 255, 0.8);
-    border: 1rpx solid rgba(255, 255, 255, 0.8);
-    margin-right: 10rpx;
-    border-radius: 30rpx;
-  }
-
-  .settings {
-    position: absolute;
-    bottom: 0;
-    right: 40rpx;
-    font-size: 30rpx;
-    color: #fff;
-  }
-}
-
-/* 我的订单 */
-.orders {
-  position: relative;
-  z-index: 99;
-  padding: 30rpx;
-  margin: 24rpx 20rpx 0;
-  background-color: #fff;
-  border-radius: 10rpx;
-  box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
-
-  .title {
-    height: 40rpx;
-    line-height: 40rpx;
-    font-size: 28rpx;
-    color: #1e1e1e;
-
-    .navigator {
+    .settings {
+      flex-shrink: 0;
+      padding: 10rpx 18rpx;
+      border-radius: 999rpx;
       font-size: 24rpx;
-      color: #939393;
-      float: right;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
     }
   }
 }
-/* 猜你喜欢 */
-.guess {
-  background-color: #f7f7f8;
-  margin-top: 20rpx;
+
+.orders {
+  margin: 24rpx 20rpx 0;
+  padding: 28rpx 24rpx;
+  background: #ffffff;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.05);
+
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20rpx;
+    font-size: 28rpx;
+    font-weight: 600;
+    color: #1f2937;
+
+    .navigator {
+      font-size: 24rpx;
+      color: #94a3b8;
+    }
+  }
+
+  .section {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12rpx 8rpx;
+    padding-top: 12rpx;
+
+    .navigator,
+    .contact {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 132rpx;
+      border-radius: 16rpx;
+      background: #f8fafc;
+      font-size: 22rpx;
+      color: #475569;
+    }
+
+    .navigator::before,
+    .contact::before {
+      margin-bottom: 14rpx;
+      font-size: 38rpx;
+    }
+
+    .contact {
+      border: none;
+      padding: 0;
+    }
+  }
 }
 </style>
