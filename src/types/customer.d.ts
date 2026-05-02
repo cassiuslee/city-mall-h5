@@ -40,6 +40,9 @@ export type MemberMarketInfo = {
 
   /** 客服经理ID */
   serviceManager: string
+
+  /** 当前主体下的人员权限编码列表 */
+  permissions: string[]
 }
 
 /**
